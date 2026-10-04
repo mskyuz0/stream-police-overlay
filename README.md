@@ -1,6 +1,6 @@
 # STF Tactical HUD - Police Streaming Overlay
 
-Browser source overlay untuk OBS streaming tema cyber police San Andreas Law Enforcement (GTA V RP). Integrasi live chat Social Stream Ninja, tactical status realtime, dan HUD militer futuristik.
+Browser source overlay for OBS streaming with cyber police theme - San Andreas Law Enforcement (GTA V RP). Integrated live chat via Social Stream Ninja, real-time tactical status, and futuristic military HUD.
 
 <p align="center">
   <img src="https://media.discordapp.net/attachments/1531751267859169573/1556376367736553704/image.png?backend=b2&ex=6ac3eff2&is=6ac29e72&hm=a3db8aa6236289ce42dc25fdf05c239ac49eaedada1ddcf890f3a1ae7b7aa046&=&format=webp&quality=lossless&width=1024&height=575" width="600" alt="STF Tactical HUD Preview">
@@ -12,46 +12,46 @@ Browser source overlay untuk OBS streaming tema cyber police San Andreas Law Enf
 
 ---
 
-## Fitur
+## Features
 
-✓ **Topbar Header** – Operator name, callsign, rank, badge, mission realtime  
-✓ **Live Chat Panel** – Social Stream Ninja WebSocket integrasi multi-platform  
-✓ **Chat Badges** – MOD (merah), SUB (biru), VIP (kuning), OWNER (emas)  
-✓ **Platform Colors** – YouTube (merah), TikTok (cyan), Twitch (ungu), Other (default)  
-✓ **Tactical Status** – 6 baris monitoring: network, bodycam, GPS, encryption, link, radio  
-✓ **Clock Realtime** – Auto-detect timezone lokal PC, update setiap detik  
-✓ **Bodycam REC** – Indikator blinking merah smooth fade animation  
-✓ **Demo Mode** – Testing tanpa SSN session  
-✓ **Responsive Scale** – vw/vh units, cocok 1920x1080 hingga 1280x720  
+✓ **Topbar Header** – Operator name, callsign, rank, badge, mission in real-time  
+✓ **Live Chat Panel** – Social Stream Ninja WebSocket multi-platform integration  
+✓ **Chat Badges** – MOD (red), SUB (blue), VIP (yellow), OWNER (gold)  
+✓ **Platform Colors** – YouTube (red), TikTok (cyan), Twitch (purple), Other (default)  
+✓ **Tactical Status** – 6-row monitoring: network, bodycam, GPS, encryption, link, radio  
+✓ **Real-time Clock** – Auto-detect local timezone, updates every second  
+✓ **Bodycam REC** – Smooth red fade blinking animation  
+✓ **Demo Mode** – Testing without SSN session  
+✓ **Responsive Scale** – vw/vh units, fits 1920x1080 down to 1280x720  
 ✓ **Transparent Background** – OBS Browser Source compatible  
 ✓ **Smooth Animations** – Chat fade-in + slide-up, bodycam pulse, scanner effects  
 
 ---
 
-## Prasyarat
+## Prerequisites
 
 - OBS Studio 28+
-- Social Stream Ninja extension/app (untuk live mode)
-- Browser modern (Chrome, Firefox, Edge)
+- Social Stream Ninja extension/app (for live mode)
+- Modern browser (Chrome, Firefox, Edge)
 
 ---
 
-## Instalasi
+## Installation
 
-### Opsi A: Local File (Offline Testing)
+### Option A: Local File (Offline Testing)
 
-1. Clone atau download repo ini
-2. Buka di OBS Browser Source:
+1. Clone or download this repo
+2. Open in OBS Browser Source:
    - **URL:** `file:///path/to/index.html?demo=1`
    - **Width:** 1920
    - **Height:** 1080
    - **FPS:** 30
 
-Demo akan menampilkan fake chat messages setiap 8 detik.
+Demo will display fake chat messages every 8 seconds.
 
-### Opsi B: Local Server (Recommended)
+### Option B: Local Server (Recommended)
 
-Kalau menggunakan SSN WebSocket, gunakan HTTP server lokal:
+For SSN WebSocket, use local HTTP server:
 
 **Python 3:**
 ```bash
@@ -64,37 +64,37 @@ python3 -m http.server 8000
 npx http-server . -p 8000
 ```
 
-Kemudian di OBS:
+Then in OBS:
 - **URL:** `http://localhost:8000/index.html?demo=1`
-- Biarkan terminal jalan saat streaming
+- Keep terminal running while streaming
 
 ---
 
-## Konfigurasi
+## Configuration
 
 ### Query Parameters
 
-| Parameter | Contoh | Fungsi |
-|-----------|--------|--------|
-| `op` | `?op=WESLEY%20MORRIETT` | Nama operator |
-| `call` | `?call=APEX-09` | Callsign/kelas |
+| Parameter | Example | Function |
+|-----------|---------|----------|
+| `op` | `?op=WESLEY%20MORRIETT` | Operator name |
+| `call` | `?call=APEX-09` | Callsign/class |
 | `rank` | `?rank=SERGEANT` | Rank |
 | `badge` | `?badge=122` | Badge number |
 | `mission` | `?mission=TEXT` | Mission statement |
 | `tz` | `?tz=7` | Timezone offset (GMT+7) |
 | `rec` | `?rec=0` | Disable REC indicator |
 | `demo` | `?demo=1` | Demo mode (fake chat) |
-| `ssn` | `?ssn=SESSION_ID` | SSN session untuk live |
+| `ssn` | `?ssn=SESSION_ID` | SSN session for live |
 | `limit` | `?limit=30` | Max chat messages |
 
-### Contoh URL Lengkap
+### Example URLs
 
-**Testing offline:**
+**Offline testing:**
 ```
 file:///D:/Workspace/WEB/stream-police-overlay/index.html?demo=1&op=KYU&call=APEX-09
 ```
 
-**Live dengan SSN:**
+**Live with SSN:**
 ```
 http://localhost:8000/index.html?ssn=abc123xyz&op=WESLEY%20MORRIETT&call=APEX-09&tz=7
 ```
@@ -106,48 +106,48 @@ http://localhost:8000/index.html?demo=1&tz=7
 
 ---
 
-## Integrasi Live Chat (SSN)
+## Live Chat Integration (SSN)
 
 ### 1. Setup Social Stream Ninja
 
 1. Install Social Stream Ninja extension/app
-2. Tambah platform: YouTube, TikTok, Twitch, atau Facebook
-3. Buka SSN settings → **Mechanics**
-4. Aktifkan dua checkbox:
+2. Add platform: YouTube, TikTok, Twitch, or Facebook
+3. Open SSN settings → **Mechanics**
+4. Enable both checkboxes:
    - ✅ Enable remote API control of extension
    - ✅ Send chat messages to API server
-5. Restart SSN jika diminta
+5. Restart SSN if prompted
 
-### 2. Ambil Session ID
+### 2. Get Session ID
 
-1. Buka SSN dock di browser
-2. Lihat URL: `https://socialstream.ninja/dock.html?session=[SESSION_ID]`
+1. Open SSN dock in browser
+2. Check URL: `https://socialstream.ninja/dock.html?session=[SESSION_ID]`
 3. Copy `[SESSION_ID]`
 
-### 3. Pasang ke OBS
+### 3. Add to OBS
 
-**URL dengan SSN:**
+**URL with SSN:**
 ```
-http://localhost:8000/index.html?ssn=SESSION_ID_KAMU&op=KYU&call=APEX-09
+http://localhost:8000/index.html?ssn=YOUR_SESSION_ID&op=KYU&call=APEX-09
 ```
 
 **Properties:**
-| Field | Nilai |
+| Field | Value |
 |-------|-------|
-| URL | URL di atas |
+| URL | URL above |
 | Width | 1920 |
 | Height | 1080 |
 | FPS | 30 |
 | Shutdown when not visible | ✓ |
 | Refresh when scene active | ✓ |
 
-### 4. Verifikasi
+### 4. Verify
 
-Kirim chat di YouTube/TikTok/Twitch. Pesan seharusnya muncul dalam 1-2 detik di overlay.
+Send chat on YouTube/TikTok/Twitch. Message should appear within 1-2 seconds in the overlay.
 
 ---
 
-## Struktur Data
+## Data Structure
 
 ### Chat Message SSN Payload
 
@@ -162,18 +162,18 @@ Kirim chat di YouTube/TikTok/Twitch. Pesan seharusnya muncul dalam 1-2 detik di 
 }
 ```
 
-**Badges yang dikenali:**
-- `mod` → MOD (merah)
-- `subscriber` → SUB (biru)
-- `vip` → VIP (kuning)
+**Recognized Badges:**
+- `mod` → MOD (red)
+- `subscriber` → SUB (blue)
+- `vip` → VIP (yellow)
 - `verified` → VERIFIED (cyan)
-- `isowner: true` → OWNER (emas)
+- `isowner: true` → OWNER (gold)
 
 **Platforms:**
-- `youtube` → Username merah (#ff6b6b)
+- `youtube` → Username red (#ff6b6b)
 - `tiktok` → Username cyan (#00f0f0)
-- `twitch` → Username ungu (#a970ff)
-- Lainnya → Username cyan default
+- `twitch` → Username purple (#a970ff)
+- Others → Username default cyan
 
 ---
 
@@ -200,7 +200,7 @@ Kirim chat di YouTube/TikTok/Twitch. Pesan seharusnya muncul dalam 1-2 detik di 
 
 ## CSS Variables (Customization)
 
-Edit file untuk ubah warna:
+Edit file to change colors:
 
 ```css
 :root {
@@ -219,36 +219,36 @@ Edit file untuk ubah warna:
 
 ## Troubleshooting
 
-### Chat tidak muncul di OBS tapi muncul di browser
+### Chat not showing in OBS but works in browser
 
-- Pastikan menggunakan `http://localhost` (bukan `file://`)
-- Refresh Browser Source di OBS (klik refresh icon)
-- Cek console browser (F12) untuk WebSocket errors
-- Test dengan `?demo=1` dulu
+- Make sure using `http://localhost` (not `file://`)
+- Refresh Browser Source in OBS (click refresh icon)
+- Check browser console (F12) for WebSocket errors
+- Test with `?demo=1` first
 
-### Demo mode chat tidak muncul
+### Demo mode chat not appearing
 
-- Buka URL dengan `?demo=1`
-- F12 → Console, lihat ada error atau tidak
-- Refresh halaman
+- Open URL with `?demo=1`
+- F12 → Console, check for errors
+- Refresh page
 
-### Status STANDBY terus (live mode)
+### Status stuck on STANDBY (live mode)
 
-1. Samakan Session ID
-2. Aktifkan dua API toggle di SSN settings
+1. Match Session ID exactly
+2. Enable both API toggles in SSN settings
 3. Restart SSN
-4. Test pakai `?demo=1` dulu untuk verify overlay sehat
+4. Test with `?demo=1` first to verify overlay health
 
-### Emoji tampil besar atau aneh
+### Emoji displays too large or weird
 
-- Emoji unicode langsung pass-through, inherit font-size chat
-- Jika masih besar, edit CSS `.msg .txt { font-size: ... }`
+- Unicode emoji pass-through directly, inherits chat font-size
+- If still large, edit CSS `.msg .txt { font-size: ... }`
 
-### Timezone salah
+### Wrong timezone
 
-- Timezone auto-detect dari OS
-- Override dengan `?tz=7` (untuk GMT+7 WIB)
-- Format: `?tz=-5` untuk GMT-5, `?tz=0` untuk GMT
+- Timezone auto-detected from OS
+- Override with `?tz=7` (for GMT+7 WIB)
+- Format: `?tz=-5` for GMT-5, `?tz=0` for GMT
 
 ---
 
@@ -259,7 +259,7 @@ Edit file untuk ubah warna:
 ```
 stream-police-overlay/
 ├── index.html          # Single-file overlay (HTML + CSS + JS)
-├── README.md           # Dokumentasi
+├── README.md           # Documentation
 └── .git/               # Version control
 ```
 
@@ -270,32 +270,32 @@ stream-police-overlay/
 - **Vanilla JS** – WebSocket, DOM rendering, timezone handling
 - **Google Fonts** – Rajdhani, Share Tech Mono
 
-### Modifikasi
+### Modifications
 
-Edit `HUD_CONFIG` object di `<script>` section untuk:
-- Nama operator default
+Edit `HUD_CONFIG` object in `<script>` section for:
+- Default operator name
 - Tactical status rows
 - Badge styles
 - Platform colors
 
 ---
 
-## Tips Streaming
+## Streaming Tips
 
-1. **Position di OBS:** Letakkan overlay di atas gameplay layer
-2. **Size:** Default 1920x1080, scale down kalau perlu
-3. **Alerts:** Chat panel auto-scroll ke message terbaru
-4. **Performance:** Vanilla JS tanpa framework, CPU usage minimal
-5. **Mobile viewers:** Layout responsive, cocok di berbagai res
-6. **Multi-platform:** SSN merge YouTube + TikTok chat real-time
+1. **Position in OBS:** Place overlay above gameplay layer
+2. **Size:** Default 1920x1080, scale down if needed
+3. **Alerts:** Chat panel auto-scrolls to latest message
+4. **Performance:** Vanilla JS no framework, minimal CPU usage
+5. **Mobile viewers:** Responsive layout, works at various resolutions
+6. **Multi-platform:** SSN merges YouTube + TikTok chat in real-time
 
 ---
 
 ## License
 
-Free to use & modify untuk GTA V RP streaming.
+Free to use & modify for GTA V RP streaming.
 
-Untuk integrasi Social Stream Ninja, ikuti lisensi GPL-3.0 SSN:
+For Social Stream Ninja integration, follow SSN GPL-3.0 license:
 - Discord: https://discord.socialstream.ninja
 - GitHub: https://github.com/steveseguin/social_stream
 
@@ -303,13 +303,13 @@ Untuk integrasi Social Stream Ninja, ikuti lisensi GPL-3.0 SSN:
 
 ## Support
 
-**Issue atau saran?**
+**Issues or suggestions?**
 
-Buat issue di GitHub atau hubungi langsung.
+Create an issue on GitHub or contact directly.
 
-**Kontribusi welcome** – fork, modifikasi, submit PR.
+**Contributions welcome** – fork, modify, submit PR.
 
 ---
 
-**Last updated:** Oktober 2026  
+**Last updated:** October 2026  
 **Status:** Production Ready ✓
