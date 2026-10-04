@@ -1,0 +1,796 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STF Tactical HUD - APEX-09</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Share+Tech+Mono&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --cy: #1ca9d6;
+            --cy2: #38c6e8;
+            --mut: #6b8495;
+            --mut2: #8da6b5;
+            --red: #ff3f4f;
+            --grn: #20d6a0;
+            --tx: #dceaf2;
+            --panel: rgba(6, 17, 28, .78);
+            --line: rgba(56, 198, 232, .35);
+            --line-soft: rgba(56, 198, 232, .16);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box
+        }
+
+        html,
+        body {
+            width: 100%;
+            height: 100%;
+            background: transparent !important;
+            overflow: hidden
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            color: var(--tx);
+            width: 100vw;
+            height: 100vh;
+            position: relative
+        }
+
+        .fx-scan {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 90;
+            opacity: .25;
+            background: repeating-linear-gradient(0deg, rgba(56, 198, 232, .02) 0 1px, transparent 1px 5px)
+        }
+
+        #hud {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            user-select: none
+        }
+
+        .mono {
+            font-family: 'Share Tech Mono', monospace
+        }
+
+        /* frame */
+        .frame {
+            position: absolute;
+            inset: 1.4vh 1.2vw;
+            z-index: 50
+        }
+
+        .frame .hline {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--line) 10%, var(--line) 90%, transparent)
+        }
+
+        .frame .hline.top {
+            top: 0
+        }
+
+        .frame .hline.bot {
+            bottom: 0
+        }
+
+        .frame .hline.top::after {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 8%;
+            height: 2px;
+            background: var(--red);
+            opacity: .8
+        }
+
+        .corner {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border: 1px solid var(--cy2);
+            opacity: .7
+        }
+
+        .corner.tl {
+            top: -1px;
+            left: -1px;
+            border-right: 0;
+            border-bottom: 0
+        }
+
+        .corner.tr {
+            top: -1px;
+            right: -1px;
+            border-left: 0;
+            border-bottom: 0
+        }
+
+        .corner.bl {
+            bottom: -1px;
+            left: -1px;
+            border-right: 0;
+            border-top: 0
+        }
+
+        .corner.br {
+            bottom: -1px;
+            right: -1px;
+            border-left: 0;
+            border-top: 0
+        }
+
+        /* panel */
+        .panel {
+            position: absolute;
+            background: var(--panel);
+            border: 1px solid var(--line-soft)
+        }
+
+        .panel::before,
+        .panel::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px
+        }
+
+        .panel::before {
+            top: -1px;
+            left: -1px;
+            border-top: 1px solid var(--cy2);
+            border-left: 1px solid var(--cy2)
+        }
+
+        .panel::after {
+            bottom: -1px;
+            right: -1px;
+            border-bottom: 1px solid var(--cy2);
+            border-right: 1px solid var(--cy2)
+        }
+
+        .p-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .55vh .8vw;
+            border-bottom: 1px solid var(--line-soft);
+            font-size: clamp(9px, .72vw, 11px);
+            font-weight: 700;
+            letter-spacing: .18em;
+            color: var(--cy2)
+        }
+
+        .p-head .sub {
+            color: var(--mut2);
+            letter-spacing: .12em;
+            font-weight: 600
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 6px;
+            vertical-align: middle
+        }
+
+        .dot.g {
+            background: var(--grn);
+            box-shadow: 0 0 6px var(--grn);
+            animation: pulse 2.4s infinite
+        }
+
+        .dot.r {
+            background: var(--red);
+            box-shadow: 0 0 6px var(--red);
+            animation: blink 1.1s steps(2) infinite
+        }
+
+        @keyframes blink {
+            50% {
+                opacity: .2
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .5
+            }
+        }
+
+        /* topbar */
+        #topbar {
+            position: absolute;
+            top: 2.2vh;
+            left: 2.4vw;
+            right: 2.4vw;
+            height: clamp(42px, 5.2vh, 50px);
+            display: flex;
+            align-items: stretch;
+            z-index: 60;
+            background: rgba(8, 24, 39, .85);
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line-soft)
+        }
+
+        #topbar::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 0;
+            width: 8%;
+            height: 2px;
+            background: var(--red)
+        }
+
+        .tb {
+            display: flex;
+            align-items: center;
+            padding: 0 .9vw;
+            min-width: 0
+        }
+
+        .tb-logo {
+            background: var(--cy);
+            color: #04121c;
+            font-weight: 700;
+            font-size: clamp(13px, 1.1vw, 17px);
+            padding: 0 .7vw;
+            align-self: stretch;
+            display: flex;
+            align-items: center
+        }
+
+        .tb-org {
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            line-height: 1.15
+        }
+
+        .tb-org b {
+            font-size: clamp(10px, .82vw, 12px);
+            letter-spacing: .14em
+        }
+
+        .tb-org span {
+            font-size: clamp(8px, .62vw, 9px);
+            letter-spacing: .22em;
+            color: var(--mut2)
+        }
+
+        .tb-mid {
+            flex: 1;
+            justify-content: center;
+            gap: 1.4vw;
+            overflow: hidden
+        }
+
+        .tb-field {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.2;
+            min-width: 0
+        }
+
+        .tb-field label {
+            font-size: clamp(7px, .55vw, 8px);
+            letter-spacing: .26em;
+            color: var(--mut)
+        }
+
+        .tb-field b {
+            font-size: clamp(10px, .88vw, 13px);
+            letter-spacing: .08em;
+            white-space: nowrap;
+            font-weight: 600
+        }
+
+        .tb-field.mission b {
+            max-width: 24vw;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            color: var(--mut2);
+            font-weight: 500
+        }
+
+        .tb-right {
+            margin-left: auto;
+            gap: 1vw
+        }
+
+        .tb-ind {
+            font-size: clamp(8px, .62vw, 9px);
+            letter-spacing: .16em;
+            color: var(--mut2);
+            white-space: nowrap
+        }
+
+        .tb-clock {
+            text-align: right;
+            line-height: 1.25
+        }
+
+        .tb-clock .d {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(9px, .72vw, 11px);
+            letter-spacing: .08em
+        }
+
+        .tb-clock .t {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: clamp(11px, .92vw, 14px);
+            color: var(--cy2);
+            letter-spacing: .06em
+        }
+
+        .tb-rec {
+            display: flex;
+            align-items: center;
+            gap: .4vw;
+            background: rgba(255, 63, 79, .1);
+            border-left: 1px solid rgba(255, 63, 79, .5);
+            padding: 0 .7vw;
+            align-self: stretch;
+            font-weight: 700;
+            font-size: clamp(9px, .72vw, 11px);
+            letter-spacing: .2em;
+            color: var(--red)
+        }
+
+        /* chat */
+        #chat {
+            left: 2.4vw;
+            bottom: 30vh;
+            width: clamp(220px, 19.5vw, 280px);
+            height: clamp(200px, 38vh, 320px);
+            z-index: 40;
+            display: flex;
+            flex-direction: column
+        }
+
+        #chatBody {
+            flex: 1;
+            overflow: hidden;
+            padding: .7vh .7vw;
+            display: flex;
+            flex-direction: column;
+            gap: .7vh;
+            justify-content: flex-end
+        }
+
+        .msg {
+            border-left: 2px solid var(--line-soft);
+            padding: .1vh 0 .1vh .55vw;
+            line-height: 1.3;
+            animation: msg-enter .28s ease-out;
+            animation-fill-mode: both;
+        }
+
+        @keyframes msg-enter {
+            0% {
+                opacity: 0;
+                transform: translateY(6px);
+                border-left-color: transparent;
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                border-left-color: var(--line-soft);
+            }
+        }
+
+        .msg.hl {
+            animation: msg-enter-hl .28s ease-out;
+        }
+
+        @keyframes msg-enter-hl {
+            0% {
+                opacity: 0;
+                transform: translateY(6px);
+                border-left-color: transparent;
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                border-left-color: var(--cy2);
+            }
+        }
+
+        .msg.hl {
+            border-left-color: var(--cy2)
+        }
+
+        .msg .who {
+            font-size: clamp(8px, .62vw, 9px);
+            font-weight: 700;
+            letter-spacing: .06em
+        }
+
+        .msg .uname {
+            display: inline-block;
+            margin-right: 4px;
+        }
+
+        .uname.yt { color: #ff6b6b }
+        .uname.tiktok { color: #00f0f0 }
+        .uname.twitch { color: #a970ff }
+        .uname.other { color: var(--cy2) }
+
+        .msg .txt {
+            font-size: clamp(10px, .82vw, 12px);
+            font-weight: 500;
+            word-break: break-word;
+            overflow-wrap: break-word
+        }
+
+        .msg .txt img {
+            max-height: 20px;
+            max-width: 20px;
+            vertical-align: text-bottom;
+            margin: 0 2px
+        }
+
+        .badge-tag {
+            display: inline-block;
+            font-size: clamp(7px, .6vw, 9px);
+            padding: 1px 4px;
+            margin-left: 4px;
+            border-radius: 2px;
+            font-weight: 700;
+            letter-spacing: .05em
+        }
+
+        .badge-mod {
+            background: rgba(255, 100, 100, .3);
+            color: #ff6464;
+            border: 1px solid rgba(255, 100, 100, .5)
+        }
+
+        .badge-sub {
+            background: rgba(100, 200, 255, .3);
+            color: #64c8ff;
+            border: 1px solid rgba(100, 200, 255, .5)
+        }
+
+        .badge-vip {
+            background: rgba(255, 200, 100, .3);
+            color: #ffc864;
+            border: 1px solid rgba(255, 200, 100, .5)
+        }
+
+        .badge-owner {
+            background: rgba(255, 215, 0, .35);
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, .6);
+            font-weight: 800
+        }
+
+
+
+        /* identity removed - merged to topbar */
+
+        /* mission panel removed */
+
+        /* tactical */
+        #tac {
+            right: 2.4vw;
+            bottom: 2.6vh;
+            width: clamp(210px, 19vw, 275px);
+            z-index: 40
+        }
+
+        #tacBody {
+            padding: .7vh .9vw .8vh
+        }
+
+        .trow {
+            display: flex;
+            justify-content: space-between;
+            padding: .4vh 0;
+            border-bottom: 1px solid rgba(56, 198, 232, .08);
+            font-size: clamp(9px, .72vw, 11px)
+        }
+
+        .trow:last-child {
+            border-bottom: 0
+        }
+
+        .trow label {
+            color: var(--mut2);
+            letter-spacing: .12em;
+            font-weight: 600;
+            font-size: .88em
+        }
+
+        .trow b {
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 400;
+            color: var(--cy2);
+            font-size: .95em
+        }
+
+        .trow b.w {
+            color: var(--tx)
+        }
+
+        .trow b.g {
+            color: var(--grn)
+        }
+
+        .trow b.rec {
+            color: var(--red);
+            animation: bodycam-pulse 1.1s ease-in-out infinite
+        }
+
+        .trow b.rec::before {
+            content: '● ';
+            font-size: 1.1em
+        }
+
+        @keyframes bodycam-pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        /* bottom center spacer (keeps gameplay clear) */
+
+        @media (max-width:1100px) {
+            .tb-field.mission {
+                display: none
+            }
+
+            #chat {
+                height: clamp(150px, 26vh, 200px)
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="fx-scan"></div>
+    <div id="hud">
+        <div class="frame" aria-hidden="true">
+            <div class="hline top"></div>
+            <div class="hline bot"></div>
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+        </div>
+
+        <header id="topbar">
+            <div class="tb tb-logo">STF</div>
+            <div class="tb tb-org"><b>SAN ANDREAS LAW ENFORCEMENT</b><span>SPEED TASK FORCE</span></div>
+            <div class="tb tb-mid">
+                <div class="tb-field"><label>OPERATOR</label><b id="tbOperator">—</b></div>
+                <div class="tb-field"><label>CLASS</label><b id="tbClass">—</b></div>
+                <div class="tb-field"><label>RANK</label><b id="tbRank">—</b></div>
+                <div class="tb-field"><label>BADGE</label><b id="tbBadge">—</b></div>
+                <div class="tb-field mission"><label>MISSION</label><b id="tbMission">—</b></div>
+            </div>
+            <div class="tb tb-right">
+                <div class="tb-ind"><span class="dot g"></span>LIVE</div>
+                <div class="tb-clock">
+                    <div class="d" id="clkDate">—</div>
+                    <div class="t" id="clkTime">—</div>
+                </div>
+                <div class="tb-rec" id="recBadge"><span class="dot r"></span>REC</div>
+            </div>
+        </header>
+
+        <section class="panel" id="chat">
+            <div class="p-head"><span id="chatHead">APEX-09 :: OVERWATCH</span><span class="sub">/// CONNECTED</span></div>
+            <div id="chatBody"></div>
+        </section>
+
+
+
+        <section class="panel" id="tac">
+            <div class="p-head"><span>TACTICAL OS // STATUS</span><span class="sub"><span
+                        class="dot g"></span>LIVE</span></div>
+            <div id="tacBody"></div>
+        </section>
+
+
+    </div>
+
+    <script>
+        const HUD_CONFIG = {
+            operator: "WESLEY MORRIETT LIEM", callsign: "APEX-09",
+            rank: "SERGEANT", badge: "122", vehicle: "Interceptor",
+            opStatus: "MISSION ACTIVE",
+            mission: "SHE CAME FOR THE GLOW, STAYED FOR THE MOTORBIKE",
+            recording: true,
+            timezoneOffset: -new Date().getTimezoneOffset() / 60,
+            timezoneLabel: "GMT" + ((-new Date().getTimezoneOffset() / 60) >= 0 ? "+" : "") + (-new Date().getTimezoneOffset() / 60),
+            tacRows: [
+                ["TACTICAL NETWORK", "CONNECTED", "g"],
+                ["BODYCAM STATUS", "REC", "rec"],
+                ["GPS LOCK", "PRECISION", "c"],
+                ["ENCRYPTION", "AES-256", "w"],
+                ["TACTICAL LINK", "SECURE", "c"],
+                ["RADIO NETWORK", "ENCRYPTED", "w"]
+            ],
+            chat: []
+        };
+        (function () { // ponytail: full control panel UI later, query override enough for now
+            const q = new URLSearchParams(location.search);
+            const C = HUD_CONFIG;
+            if (q.get("op")) C.operator = q.get("op");
+            if (q.get("call")) C.callsign = q.get("call");
+            if (q.get("rank")) C.rank = q.get("rank");
+            if (q.get("badge")) C.badge = q.get("badge");
+
+            if (q.get("mission")) C.mission = q.get("mission");
+            if (q.get("tz")) {C.timezoneOffset = +q.get("tz"); C.timezoneLabel = "GMT+" + q.get("tz");}
+            if (q.get("rec") === "0") C.recording = false;
+        })();
+
+        const $ = id => document.getElementById(id);
+        function splitName(n) {const p = n.trim().split(/\s+/); return p.length > 2 ? [p.slice(0, -1).join(" "), p.slice(-1)] : [n, ""];}
+        (function render() {
+            const c = HUD_CONFIG;
+            $("tbOperator").textContent = c.operator;
+            $("tbClass").textContent = c.callsign;
+            $("tbRank").textContent = c.rank;
+            $("tbBadge").textContent = c.badge;
+            $("tbMission").textContent = c.mission;
+            $("chatHead").textContent = c.callsign + " :: OVERWATCH";
+            $("recBadge").style.display = c.recording ? "flex" : "none";
+            $("tacBody").innerHTML = c.tacRows.map(([k, v, cls]) =>
+                `<div class="trow"><label>${k}</label><b class="${cls === "g" ? "g" : cls === "rec" ? "rec" : cls === "c" ? "" : "w"}">${v}</b></div>`).join("");
+        })();
+
+        const MON = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+        function tick() {
+            const n = new Date();
+            const p = x => String(x).padStart(2, "0");
+            $("clkDate").textContent = `${MON[n.getMonth()]} ${n.getDate()} ${n.getFullYear()}`;
+            $("clkTime").textContent = `${p(n.getHours())}:${p(n.getMinutes())}:${p(n.getSeconds())} ${HUD_CONFIG.timezoneLabel}`;
+        }
+        tick(); setInterval(tick, 1000);
+
+        function renderChat() {
+            $("chatBody").innerHTML = '';
+        }
+        renderChat();
+
+        window.HUD = {
+            config: HUD_CONFIG,
+            addChat(u, t, hl) {HUD_CONFIG.chat.push({u, t, hl: !!hl}); renderChat();}
+        };
+
+        /* Social Stream Ninja WebSocket Integration */
+        (function() {
+            const params = new URLSearchParams(location.search);
+            const sessionId = params.get('ssn') || params.get('session');
+            const demoMode = params.has('demo') || !sessionId;
+            const limit = parseInt(params.get('limit')) || 50;
+            let ws = null, reconnectAttempts = 0;
+
+            function updateChatStatus(connected) {
+                const sub = document.querySelector('#chat .sub');
+                if (sub) {
+                    sub.textContent = connected ? '/// CONNECTED' : '/// STANDBY';
+                    sub.style.color = connected ? '#20d6a0' : '#ff3f4f';
+                }
+            }
+
+            function parseBadge(data) {
+                if (data.isowner || data.ischannel) return 'owner';
+                if (data.badge === 'mod') return 'mod';
+                if (data.badge === 'subscriber') return 'sub';
+                if (data.badge === 'vip') return 'vip';
+                if (data.badge === 'verified') return 'verified';
+                return '';
+            }
+
+            function parsePlatform(platform) {
+                const p = (platform || '').toLowerCase();
+                if (p.includes('youtube')) return 'yt';
+                if (p.includes('tiktok')) return 'tiktok';
+                if (p.includes('twitch')) return 'twitch';
+                return 'other';
+            }
+
+            function addSSNMessage(data) {
+                const chatBody = document.getElementById('chatBody');
+                const msg = document.createElement('div');
+                msg.className = 'msg';
+                const who = data.chatname || data.username || 'Anon';
+                const rawText = data.chatmessage || data.message || '';
+                const time = new Date().toLocaleTimeString('id-ID', {hour:'2-digit',minute:'2-digit'});
+                const badge = parseBadge(data);
+                const platform = parsePlatform(data.platform || data.type);
+                let whoHtml = `<span class="uname ${platform}">@${who}</span>`;
+                if (badge) whoHtml += `<span class="badge-tag badge-${badge}">${badge === 'owner' ? 'OWNER' : badge.toUpperCase()}</span>`;
+                msg.innerHTML = `<div class="who">${whoHtml} <span class="ts">· ${time}</span></div><div class="txt">${rawText}</div>`;
+                chatBody.appendChild(msg);
+                // limit messages
+                while (chatBody.children.length > limit) chatBody.firstChild.remove();
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }
+
+            function connect() {
+                if (!sessionId) {
+                    if (demoMode) {
+                        // demo messages with badges and platforms
+                        const demos = [
+                            {chatname:'@Ez1danGb',chatmessage:'hello sergeant',badge:'mod',platform:'youtube'},
+                            {chatname:'ngungng1',chatmessage:'ke cs om juga yeuu 🚓',badge:'subscriber',platform:'tiktok'},
+                            {chatname:'Patrol_Unit',chatmessage:'All clear sector B 🔒',badge:'verified',platform:'youtube'},
+                            {chatname:'Dispatch',chatmessage:'Backup en route 🚨',badge:'vip',platform:'twitch'},
+                            {chatname:'Admin_Kyu',chatmessage:'System check: green across all boards ✅',badge:'mod',platform:'other'},
+                            {chatname:'Kyu',chatmessage:'Selamat datang di patroli malam 🚓',isowner:true,platform:'youtube'},
+                            {chatname:'Subscriber_Alpha',chatmessage:'Nice overlay! Love the cyber theme 💙',badge:'subscriber',platform:'youtube'}
+                        ];
+                        // Add initial demo messages
+                        demos.forEach((msg,i) => {
+                            setTimeout(() => addSSNMessage(msg), i * 1500);
+                        });
+                        // Keep adding new demo messages
+                        setInterval(() => {
+                            const msg = demos[Math.floor(Math.random()*demos.length)];
+                            addSSNMessage(msg);
+                        }, 8000);
+                        updateChatStatus(true);
+                    }
+                    return;
+                }
+
+                try {
+                    ws = new WebSocket('wss://io.socialstream.ninja');
+                    ws.onopen = () => {
+                        updateChatStatus(true);
+                        reconnectAttempts = 0;
+                        ws.send(JSON.stringify({join:sessionId,in:4,out:3}));
+                    };
+                    ws.onmessage = (e) => {
+                        try {
+                            const d = JSON.parse(e.data);
+                            if (d && (d.chatname || d.chatmessage)) addSSNMessage(d);
+                        } catch {}
+                    };
+                    ws.onerror = () => console.log('SSN WebSocket error');
+                    ws.onclose = () => {
+                        updateChatStatus(false);
+                        ws = null;
+                        if (reconnectAttempts < 5) {
+                            reconnectAttempts++;
+                            setTimeout(connect, 2000 * reconnectAttempts);
+                        }
+                    };
+                } catch (err) {
+                    console.error('SSN connect error', err);
+                }
+            }
+
+            if (document.readyState === 'complete') connect();
+            else window.addEventListener('load', connect);
+        })();
+    </script>
+</body>
+
+</html>
